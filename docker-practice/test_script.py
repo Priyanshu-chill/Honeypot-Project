@@ -1,0 +1,5 @@
+print("=" * 40)
+print("Docker container is running!")
+print("This is my first custom image!")
+print("Honeypot Project - Phase 3")
+print("=" * 40)
