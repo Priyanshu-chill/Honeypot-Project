@@ -23,3 +23,12 @@ and automatically analyzes it using cloud services.
 - Process monitoring with ps and top
 - Networking with ping, curl, ss, grep
 - Date: March 2026
+
+## Networking Practice Completed
+- SSH installed and connected successfully
+- Netcat C2 communication simulated
+- Wireshark capturing and filtering traffic
+- Filters used: icmp, tcp, udp, tls, ip.addr
+- Date: March 2026
+
+## PHASE 2 COMPLETE
