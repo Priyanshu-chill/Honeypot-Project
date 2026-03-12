@@ -1,0 +1,19 @@
+# Large binary files
+minikube-linux-amd64
+kubectl
+
+# System files
+.DS_Store
+__pycache__/
+*.pyc
+
+# Environment files
+.env
+*.key
+*.pem
+
+# Docker
+*.tar
+
+# Logs
+*.log
