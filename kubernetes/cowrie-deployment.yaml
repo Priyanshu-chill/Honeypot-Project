@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cowrie-honeypot
+  labels:
+    app: cowrie
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: cowrie
+  template:
+    metadata:
+      labels:
+        app: cowrie
+    spec:
+      containers:
+      - name: cowrie
+        image: ubuntu:22.04
+        command: ["sleep", "3600"]
+        ports:
+        - containerPort: 2222
+        resources:
+          limits:
+            memory: "256Mi"
+            cpu: "500m"
