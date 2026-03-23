@@ -3,6 +3,11 @@ import time
 import hashlib
 import json
 import datetime
+import boto3
+
+# AWS Configuration
+S3_BUCKET = "honeypot-malware-samples-chill"
+AWS_REGION = "ap-south-1"
 
 # Path where Cowrie saves uploaded malware files
 WATCH_DIR = os.path.expanduser(
@@ -16,6 +21,17 @@ def get_file_hash(filepath):
             sha256.update(chunk)
     return sha256.hexdigest()
 
+def upload_to_s3(filepath, filename, file_hash):
+    try:
+        s3_client = boto3.client("s3", region_name=AWS_REGION)
+        s3_key = f"malware-samples/{file_hash}_{filename}"
+        s3_client.upload_file(filepath, S3_BUCKET, s3_key)
+        print(f"✅ Uploaded to S3: {s3_key}")
+        return s3_key
+    except Exception as e:
+        print(f"❌ S3 upload failed: {e}")
+        return None
+
 def scan_directory():
     if not os.path.exists(WATCH_DIR):
         os.makedirs(WATCH_DIR)
@@ -24,6 +40,7 @@ def scan_directory():
     print("=" * 50)
     print("COWRIE FILE MONITOR STARTED")
     print(f"Watching: {WATCH_DIR}")
+    print(f"S3 Bucket: {S3_BUCKET}")
     print("=" * 50)
 
     seen_files = set()
@@ -38,6 +55,15 @@ def scan_directory():
             file_hash = get_file_hash(filepath)
             timestamp = str(datetime.datetime.now())
 
+            print("\n🚨 NEW FILE DETECTED!")
+            print(f"Filename: {filename}")
+            print(f"Size: {file_size} bytes")
+            print(f"SHA256: {file_hash}")
+
+            # Upload to S3
+            print("⬆️  Uploading to S3...")
+            s3_key = upload_to_s3(filepath, filename, file_hash)
+
             # Create alert
             alert = {
                 "timestamp": timestamp,
@@ -45,10 +71,11 @@ def scan_directory():
                 "filepath": filepath,
                 "size_bytes": file_size,
                 "sha256": file_hash,
-                "status": "NEW MALWARE DETECTED"
+                "s3_bucket": S3_BUCKET,
+                "s3_key": s3_key,
+                "status": "UPLOADED TO S3"
             }
 
-            print("\n🚨 NEW FILE DETECTED!")
             print(json.dumps(alert, indent=4))
 
             # Save alert to log file
