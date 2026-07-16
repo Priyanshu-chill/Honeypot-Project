@@ -1,10 +1,8 @@
 # Base image
 FROM ubuntu:22.04
 
-# Avoid interactive prompts during install
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Install static analysis tools
 RUN apt-get update && apt-get install -y \
     python3 \
     python3-pip \
@@ -13,25 +11,28 @@ RUN apt-get update && apt-get install -y \
     xxd \
     binutils \
     ssdeep \
-    yara
+    yara \
+    && rm -rf /var/lib/apt/lists/*
 
-# Install Python libraries
 RUN pip3 install \
     pefile \
     yara-python \
     requests
 
-# Create working directory
+# Create non-root user
+RUN useradd -m analyzer
+
 WORKDIR /analysis
 
-# Create folders for input and output
 RUN mkdir -p /analysis/samples /analysis/reports
 
-# Copy analyzer script
 COPY analyzer.py /analysis/analyzer.py
 COPY vt_lookup.py /analysis/vt_lookup.py
-
 COPY rules /analysis/rules
 
-# Default command
-CMD ["python3",  "/analysis/analyzer.py"]
+# Give ownership to non-root user
+RUN chown -R analyzer:analyzer /analysis
+
+USER analyzer
+
+CMD ["python3","/analysis/analyzer.py"]

@@ -1,11 +1,9 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: cowrie-honeypot
-  labels:
-    app: cowrie
+  name: cowrie
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: cowrie
@@ -14,13 +12,12 @@ spec:
       labels:
         app: cowrie
     spec:
+      securityContext:
+        runAsNonRoot: true
       containers:
       - name: cowrie
-        image: ubuntu:22.04
-        command: ["sleep", "3600"]
+        image: cowrie:latest
+        securityContext:
+          allowPrivilegeEscalation: false
         ports:
         - containerPort: 2222
-        resources:
-          limits:
-            memory: "256Mi"
-            cpu: "500m"

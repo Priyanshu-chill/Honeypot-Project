@@ -1,0 +1,55 @@
+name: DevSecOps Security Pipeline
+
+on:
+  push:
+    branches: [main]
+
+  pull_request:
+    branches: [main]
+
+jobs:
+
+  security:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.12"
+
+    - name: Install Dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install semgrep
+
+    - name: Run Semgrep
+      run: |
+        semgrep scan --config auto .
+
+    - name: Run Trivy Filesystem Scan
+      uses: aquasecurity/trivy-action@master
+      with:
+        scan-type: fs
+        scan-ref: .
+
+    - name: Run Trivy Secret Scan
+      uses: aquasecurity/trivy-action@master
+      with:
+        scan-type: fs
+        scan-ref: .
+        scanners: secret
+
+    - name: Build Docker Image
+      run: |
+        docker build -t malware-analysis ./analysis/static
+
+    - name: Trivy Docker Image Scan
+      uses: aquasecurity/trivy-action@master
+      with:
+        image-ref: malware-analysis

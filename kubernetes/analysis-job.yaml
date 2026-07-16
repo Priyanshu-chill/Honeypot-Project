@@ -1,13 +1,16 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: malware-analysis-job
+  name: static-analysis
 spec:
   template:
     spec:
+      securityContext:
+        runAsNonRoot: true
       containers:
       - name: static-analysis
-        image: ubuntu:22.04
-        command: ["echo", "Analyzing malware sample..."]
+        image: malware-static:latest
+        securityContext:
+          allowPrivilegeEscalation: false
+        imagePullPolicy: Never
       restartPolicy: Never
-  backoffLimit: 3

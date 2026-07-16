@@ -1,10 +1,7 @@
-# Base image
 FROM ubuntu:22.04
 
-# Avoid interactive prompts
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Install dynamic analysis tools
 RUN apt-get update && apt-get install -y \
     python3 \
     python3-pip \
@@ -15,13 +12,19 @@ RUN apt-get update && apt-get install -y \
     net-tools \
     iputils-ping \
     wget \
-    curl
+    curl \
+    && rm -rf /var/lib/apt/lists/*
 
-# Create working directory
+RUN useradd -m analyzer
+
 WORKDIR /analysis
 
-# Create folders
-RUN mkdir -p /analysis/samples /analysis/reports /analysis/pcap
+RUN mkdir -p /analysis/samples \
+             /analysis/reports \
+             /analysis/pcap
 
-# Default command
-CMD ["python3", "--version"]
+RUN chown -R analyzer:analyzer /analysis
+
+USER analyzer
+
+CMD ["python3","--version"]
