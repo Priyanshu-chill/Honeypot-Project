@@ -9,7 +9,6 @@ RUN apt-get update && apt-get install -y \
     python3 \
     python3-pip \
     file \
-    binwalk \
     libimage-exiftool-perl \
     xxd \
     binutils \
@@ -19,7 +18,8 @@ RUN apt-get update && apt-get install -y \
 # Install Python libraries
 RUN pip3 install \
     pefile \
-    yara-python
+    yara-python \
+    requests
 
 # Create working directory
 WORKDIR /analysis
@@ -27,5 +27,11 @@ WORKDIR /analysis
 # Create folders for input and output
 RUN mkdir -p /analysis/samples /analysis/reports
 
+# Copy analyzer script
+COPY analyzer.py /analysis/analyzer.py
+COPY vt_lookup.py /analysis/vt_lookup.py
+
+COPY rules /analysis/rules
+
 # Default command
-CMD ["python3", "--version"]
+CMD ["python3",  "/analysis/analyzer.py"]

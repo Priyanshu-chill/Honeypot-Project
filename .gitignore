@@ -1,19 +1,57 @@
-# Large binary files
+# ==========================
+# Python
+# ==========================
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+
+# Virtual Environment
+venv/
+.env
+honeypot/cowrie/cowrie-env/
+
+# ==========================
+# Runtime Generated Files
+# ==========================
+scripts/analyzer_input/
+scripts/analyzer_reports/
+scripts/downloads/
+scripts/malware_alerts.json
+
+analysis/static/reports/
+analysis/static/samples/
+
+# ==========================
+# Logs
+# ==========================
+*.log
+
+# ==========================
+# Large Binaries
+# ==========================
 minikube-linux-amd64
 kubectl
 
-# System files
-.DS_Store
-__pycache__/
-*.pyc
-
-# Environment files
-.env
-*.key
-*.pem
-
+# ==========================
 # Docker
+# ==========================
 *.tar
 
-# Logs
-*.log
+# ==========================
+# Secrets
+# ==========================
+*.pem
+*.key
+
+# ==========================
+# IDE
+# ==========================
+.vscode/
+.idea/
+
+# ==========================
+# OS Files
+# ==========================
+.DS_Store
+Thumbs.db

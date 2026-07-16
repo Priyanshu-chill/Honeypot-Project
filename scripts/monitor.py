@@ -8,6 +8,15 @@ import boto3
 # AWS Configuration
 S3_BUCKET = "honeypot-malware-samples-chill"
 AWS_REGION = "ap-south-1"
+QUEUE_URL = (
+    "https://sqs.ap-south-1.amazonaws.com/"
+    "460442982798/malware-analysis-queue"
+)
+
+sqs = boto3.client(
+    "sqs",
+    region_name=AWS_REGION
+)
 
 # Path where Cowrie saves uploaded malware files
 WATCH_DIR = os.path.expanduser(
@@ -32,6 +41,30 @@ def upload_to_s3(filepath, filename, file_hash):
         print(f"❌ S3 upload failed: {e}")
         return None
 
+def send_sqs_message(s3_key):
+
+    try:
+
+        message = {
+            "s3_bucket": S3_BUCKET,
+            "s3_key": s3_key
+        }
+
+        sqs.send_message(
+            QueueUrl=QUEUE_URL,
+            MessageBody=json.dumps(message)
+        )
+
+        print(
+            f"✅ SQS Message Sent: {s3_key}"
+        )
+
+    except Exception as e:
+
+        print(
+            f"❌ SQS Error: {e}"
+        )
+
 def scan_directory():
     if not os.path.exists(WATCH_DIR):
         os.makedirs(WATCH_DIR)
@@ -43,13 +76,15 @@ def scan_directory():
     print(f"S3 Bucket: {S3_BUCKET}")
     print("=" * 50)
 
-    seen_files = set()
+    seen_files = set(os.listdir(WATCH_DIR))
 
     while True:
         current_files = set(os.listdir(WATCH_DIR))
         new_files = current_files - seen_files
 
         for filename in new_files:
+            if filename == ".gitignore":
+                 continue
             filepath = os.path.join(WATCH_DIR, filename)
             file_size = os.path.getsize(filepath)
             file_hash = get_file_hash(filepath)
@@ -61,8 +96,17 @@ def scan_directory():
             print(f"SHA256: {file_hash}")
 
             # Upload to S3
-            print("⬆️  Uploading to S3...")
-            s3_key = upload_to_s3(filepath, filename, file_hash)
+            s3_key = upload_to_s3(
+            filepath,
+            filename,
+            file_hash
+            )
+
+            if s3_key:
+
+                send_sqs_message(
+                    s3_key
+                )
 
             # Create alert
             alert = {
