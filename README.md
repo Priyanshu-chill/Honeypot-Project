@@ -265,19 +265,6 @@ The Docker-based analysis engine performs:
 
 ---
 
-# Screenshots
-
-Add screenshots here:
-
-- Cowrie SSH Login
-- SCP Malware Upload
-- monitor.py Detection
-- Amazon S3 Upload
-- Lambda Trigger
-- Amazon SQS Message
-- Docker Analysis
-- JSON Report
-- Email Alert
 
 ---
 
